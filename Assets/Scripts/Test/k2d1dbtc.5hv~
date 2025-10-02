@@ -1,0 +1,28 @@
+using Framework;
+using Melon.Test;
+using Melon.UI;
+using UnityEngine;
+
+public class TestCardsInHand : MonoBehaviour
+{
+    [SerializeField]
+    UICard UICard;
+
+    [SerializeField]
+    UICardsInHand UICardsInHand;
+
+    readonly RandomCardSet randomCardSet = new();
+
+    private void Start()
+    {
+        UICardsInHand.gameObject.SetActive(true);
+        UICardsInHand.UICardLoader = () =>
+        {
+            var uiCard = Instantiate(UICard);
+        };
+
+        var cards = randomCardSet.GetNextN(5);
+        foreach (var card in cards)
+            UICardsInHand.AddCard(card);
+    }
+}

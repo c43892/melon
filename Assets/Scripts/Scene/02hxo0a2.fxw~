@@ -1,0 +1,46 @@
+using Melon.Gameplay;
+using System;
+using UnityEngine;
+
+namespace Melon.Scene
+{
+    public class SBattleScene : MonoBehaviour
+    {
+        [SerializeField]
+        Transform[] OurPositions;
+
+        [SerializeField]
+        Transform[] TheirPositions;
+
+        public static Func<CharType, SBattleChar> BattleCharLoader = null;
+
+        public void Load(Battle battle)
+        {
+            for (int i = 0; i < battle.Ours.Length; i++)
+            {
+                var btChar = battle.Ours[i];
+                if (btChar == null)
+                    continue;
+
+                var battleChar = BattleCharLoader(btChar.Char.Type);
+                battleChar.transform.SetParent(OurPositions[i]);
+                battleChar.transform.localPosition = Vector3.zero;
+                battleChar.transform.localScale = Vector3.one;
+                battleChar.gameObject.SetActive(true);
+            }
+
+            for (int i = 0; i < battle.Theirs.Length; i++)
+            {
+                var attrs = battle.Theirs[i];
+                if (attrs == null)
+                    continue;
+
+                var battleChar = BattleCharLoader(attrs.Char.Type);
+                battleChar.transform.SetParent(TheirPositions[i]);
+                battleChar.transform.localPosition = Vector3.zero;
+                battleChar.transform.localScale = Vector3.one;
+                battleChar.gameObject.SetActive(true);
+            }
+        }
+    }
+}

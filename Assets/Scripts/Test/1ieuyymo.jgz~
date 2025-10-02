@@ -1,0 +1,54 @@
+using Melon.Gameplay;
+using Melon.Scene;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Melon.Test
+{
+    public class TestBattleScene : MonoBehaviour
+    {
+        [SerializeField]
+        SBattleScene BattleScene;
+
+        [SerializeField]
+        SBattleChar BattleChar;
+
+        [SerializeField]
+        GameObject Warrior;
+
+        [SerializeField]
+        GameObject Priest;
+
+        [SerializeField]
+        GameObject Mage;
+
+        [SerializeField]
+        GameObject Guard;
+
+        readonly Dictionary<CharType, GameObject> BattleChars = new ();
+
+        private void Start()
+        {
+            BattleChars[CharType.Warrior] = Warrior;
+            BattleChars[CharType.Priest] = Priest;
+            BattleChars[CharType.Mage] = Mage;
+            BattleChars[CharType.Guard] = Guard;
+
+            SBattleScene.BattleCharLoader = (charType) =>
+            {
+                var battleChar = Instantiate(BattleChar);
+                var charBody = BattleChars[charType];
+                charBody.transform.SetParent(battleChar.CharBodyRoot);
+                charBody.transform.localPosition = Vector3.zero;
+                charBody.transform.localScale = Vector3.one;
+                charBody.SetActive(true);
+
+                return battleChar;
+            };
+
+            BattleScene.gameObject.SetActive(true);
+
+            var battle = new Battle();
+        }
+    }
+}

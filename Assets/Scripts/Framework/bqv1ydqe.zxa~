@@ -1,0 +1,33 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Framework
+{
+    public interface IFarmeDriven
+    {
+        public void OnTimeElapsed(float deltaTime);
+    }
+
+    public interface IModule
+    {
+        public string Name { get; }
+    }
+
+    public interface 
+
+    public class ModuleContainer
+    {
+        public Dictionary<string, IModule> Modules { get; } = new Dictionary<string, IModule>();
+
+        public void AddModule(IModule module)
+        {
+            if (Modules.ContainsKey(module.Name))
+            {
+                Debug.LogError($"Module {module.Name} already exists.");
+                return;
+            }
+
+            Modules.Add(module.Name, module);
+        }
+    }
+}
