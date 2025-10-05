@@ -13,9 +13,14 @@ namespace Melon.Scene
         [SerializeField]
         Transform[] TheirPositions;
 
+        [SerializeField]
+        public Transform EffectRoot;
+
         readonly Dictionary<BattleChar, SBattleChar> BattleCharMap = new();
 
-        public static Func<CharType, SBattleChar> BattleCharLoader = null;
+        public SBattleChar GetSBattleChar(BattleChar btChar) => (btChar != null && BattleCharMap.ContainsKey(btChar)) ? BattleCharMap[btChar] : null;
+
+        public Func<CharType, SBattleChar> BattleCharLoader = null;
 
         public void Load(Battle battle)
         {
@@ -52,14 +57,6 @@ namespace Melon.Scene
                 battleChar.BattleChar = btChar;
                 BattleCharMap[btChar] = battleChar;
             }
-        }
-
-        public SBattleChar GetSBattleChar(BattleChar btChar)
-        {
-            if (btChar == null)
-                return null;
-
-            return BattleCharMap.ContainsKey(btChar) ? BattleCharMap[btChar] : null;
         }
     }
 }

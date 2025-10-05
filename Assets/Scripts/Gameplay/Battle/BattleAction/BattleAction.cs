@@ -22,6 +22,17 @@ namespace Melon.Gameplay
         Fixed64 Amount { get; set; }
     }
 
+    public interface IActionRunner
+    {
+        void Run(BattleAction action, BattleContext context);
+
+        void RegisterBefore<T>(Action<T> beforeAction) where T : BattleAction;
+
+        void RegisterOn<T>(Action<T> onAction) where T : BattleAction;
+
+        void RegisterAfter<T>(Action<T> afterAction) where T : BattleAction;
+    }
+
     public class BattleAction
     {
         public virtual void Apply()

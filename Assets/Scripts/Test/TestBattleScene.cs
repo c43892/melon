@@ -20,7 +20,7 @@ namespace Melon.Test
         UIEquip UIEquip;
 
         [SerializeField]
-        SBattleScene BattleScene;
+        public SBattleScene BattleScene;
 
         [SerializeField]
         SBattleChar BattleChar;
@@ -43,6 +43,8 @@ namespace Melon.Test
         [SerializeField]
         GameObject SmallSlime;
 
+        public Battle Battle { get; private set; } = new();
+
         readonly Dictionary<CharType, GameObject> BattleChars = new ();
 
         private void Awake()
@@ -61,7 +63,7 @@ namespace Melon.Test
             BattleChars[CharType.SmallSlime] = SmallSlime;
             BattleChars[CharType.BigSlime] = BigSlime;
 
-            SBattleScene.BattleCharLoader = (charType) =>
+            BattleScene.BattleCharLoader = (charType) =>
             {
                 var battleChar = Instantiate(BattleChar);
                 var charBody = Instantiate(BattleChars[charType]);
@@ -73,8 +75,7 @@ namespace Melon.Test
                 return battleChar;
             };
 
-            var battle = new Battle();
-            battle.AddRule(new RBasic());
+            Battle.AddRule(new RBasic());
 
             // equips and their rules
             UIEquipsInBattle.gameObject.SetActive(true);
@@ -84,32 +85,32 @@ namespace Melon.Test
 
             foreach (var uiEquip in UIEquipsInBattle.UIEquips)
             {
-                battle.AddRule(uiEquip.Equip.Rule);
+                Battle.AddRule(uiEquip.Equip.Rule);
                 TestUIBattle.Rules.Add(uiEquip.Equip.Rule);
             }
 
             // heros
-            battle.Ours[0] = new BattleChar() { Char = new Char() { Type = CharType.Warrior }, MaxHp = 10, Hp = 5, HpHealingTop = 7 };
-            battle.Ours[1] = new BattleChar() { Char = new Char() { Type = CharType.Priest }, MaxHp = 10, Hp = 5, HpHealingTop = 7 };
-            battle.Ours[2] = new BattleChar() { Char = new Char() { Type = CharType.Mage }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 5 };
-            battle.Ours[3] = new BattleChar() { Char = new Char() { Type = CharType.Guard }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 10 };
+            Battle.Ours[0] = new BattleChar() { Char = new Char() { Type = CharType.Warrior }, MaxHp = 10, Hp = 5, HpHealingTop = 7 };
+            Battle.Ours[1] = new BattleChar() { Char = new Char() { Type = CharType.Priest }, MaxHp = 10, Hp = 5, HpHealingTop = 7 };
+            Battle.Ours[2] = new BattleChar() { Char = new Char() { Type = CharType.Mage }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 5 };
+            Battle.Ours[3] = new BattleChar() { Char = new Char() { Type = CharType.Guard }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 10 };
 
             // monsters
-            battle.Theirs[0] = new BattleChar() { Char = new Char() { Type = CharType.SmallSlime }, MaxHp = 10, Hp = 10 };
-            battle.Theirs[2] = new BattleChar() { Char = new Char() { Type = CharType.BigSlime }, MaxHp = 10, Hp = 10 };
+            Battle.Theirs[0] = new BattleChar() { Char = new Char() { Type = CharType.SmallSlime }, MaxHp = 10, Hp = 10 };
+            Battle.Theirs[2] = new BattleChar() { Char = new Char() { Type = CharType.BigSlime }, MaxHp = 10, Hp = 10 };
 
             BattleScene.gameObject.SetActive(true);
-            BattleScene.Load(battle);
+            BattleScene.Load(Battle);
 
             TestUIBattle.UIBattle.OnCardsPlay.AddListener(() =>
             {
                 var cards = TestUIBattle.UIBattle.UICardsInHand.SelectedCards;
-                battle.PlayCards(cards);
+                Battle.PlayCards(cards);
 
-                foreach (var btChar in battle.Ours)
+                foreach (var btChar in Battle.Ours)
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
 
-                foreach (var btChar in battle.Theirs)
+                foreach (var btChar in Battle.Theirs)
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
             });
 

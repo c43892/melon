@@ -10,14 +10,9 @@ namespace Melon.Gameplay
         Equip Equip { get; }
     }
 
-    public interface IRuleRunner
-    {
-        void Run(BattleAction action, BattleContext context);
-    }
-
     public class Rule
     {
-        public IRuleRunner Runner { get; set; }
+        public IActionRunner Runner { get; set; }
 
         public virtual bool IsValid(IEnumerable<Card> cards) => false;
 
