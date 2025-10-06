@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace Melon.Gameplay
 {
-    // the player clicks "play" button to play the selected cards
-    public class PlayingCards : BattleAction
+    // the player ends their turn
+    public class PlayerEndTurn : BattleAction
     {
-        public List<Card> Cards { get; set; } = null;
     }
 }

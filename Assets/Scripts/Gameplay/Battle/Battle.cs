@@ -8,17 +8,61 @@ namespace Melon.Gameplay
 {
     public class Battle : IActionRunner
     {
-        public BattleChar[] Ours { get; } = new BattleChar[4];
+        BattleChar[] Ours { get; } = new BattleChar[4];
 
-        public BattleChar[] Theirs { get; } = new BattleChar[4];
+        BattleChar[] Theirs { get; } = new BattleChar[4];
 
         public List<Rule> Rules { get; private set; } = new();
 
+        BattleContext context = null;
+
+        public Battle()
+        {
+            context = new BattleContext() { Battle = this };
+        }
+
+        public void SetChar(bool isOur, int index, BattleChar battleChar)
+        {
+            if (isOur)
+                Ours[index] = battleChar;
+            else
+                Theirs[index] = battleChar as BattleMonster;
+
+            battleChar.Battle = this;
+        }
+
+        public BattleChar GetChar(bool isOur, int index)
+        {
+            if (isOur)
+                return Ours[index];
+            else
+                return Theirs[index];
+        }
+
+        public BattleChar[] GetOurs() => Ours;
+
+        public BattleChar[] GetTheirs() => Theirs;
+
         public void PlayCards(IEnumerable<Card> cards)
         {
-            BattleContext context = new() { Battle = this };
+            Run(new PlayingCards() { Cards = cards.ToList() });
+        }
 
-            Run(new PlayingCards() { Cards = cards.ToList() }, context);
+        public void PlayerEndTurn()
+        {
+            Run(new PlayerEndTurn());
+
+            // enmeies' turn
+            foreach (var enemy in Theirs)
+            {
+                var ai = (enemy as IBattleCharWithAI)?.AI;
+                if (ai == null || !ai.Active)
+                    continue;
+
+                ai.Act();
+            }
+
+            Run(new EnemyEndTurn());
         }
 
         public void AddRule(Rule rule)
@@ -64,7 +108,7 @@ namespace Melon.Gameplay
             afterActions[type].Add(a => afterAction(a as T));
         }
 
-        public void Run(BattleAction action, BattleContext context)
+        public void Run(BattleAction action)
         {
             var type = action.GetType();
             if (beforeActions.ContainsKey(type))

@@ -6,6 +6,8 @@ namespace Melon.Gameplay
     {
         public Char Char { get; set; } = null;
 
+        public virtual Battle Battle { get; set; } = null;
+
         public Fixed64 MaxHp { get; set; } = 0;
 
         public Fixed64 Hp { get; set; } = 0;

@@ -11,6 +11,8 @@ namespace Melon.Gameplay
             if (act is not PlayingCards playingCards)
                 return;
 
+            var ours = context.Battle.GetOurs();
+            var theirs = context.Battle.GetTheirs();
             var cards = playingCards.Cards;
             foreach (var card in cards)
             {
@@ -19,18 +21,18 @@ namespace Melon.Gameplay
                 switch (card.Suit)
                 {
                     case CardSuit.Spades:
-                        var target = bt.Theirs.FirstOrDefault(c => c != null && c.Hp > 0);
+                        var target = theirs.FirstOrDefault(c => c != null && c.Hp > 0);
                         if (target != null)
-                            Runner.Run(new Damage() { Targets = new() { target }, Amount = (int)card.Value, Card = card }, context);
+                            Runner.Run(new Damage() { Targets = new() { target }, Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Hearts:
-                        Runner.Run(new Healing() { Targets = bt.Ours.ToList(), Amount = (int)card.Value, Card = card }, context);
+                        Runner.Run(new Healing() { Targets = ours.ToList(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Clubs:
-                        Runner.Run(new Damage() { Targets = bt.Theirs.ToList(), Amount = (int)card.Value, Card = card }, context);
+                        Runner.Run(new Damage() { Targets = theirs.ToList(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Diamonds:
-                        Runner.Run(new Block() { Targets = bt.Ours.ToList(), Amount = (int)card.Value, Card = card }, context);
+                        Runner.Run(new Block() { Targets = ours.ToList(), Amount = (int)card.Value, Card = card });
                         break;
                     default:
                         break;
@@ -38,9 +40,10 @@ namespace Melon.Gameplay
             }
         }
 
-        public override bool IsValid(IEnumerable<Card> cards)
+        public override bool IsValid(BattleChar actor, IEnumerable<Card> cards)
         {
-            return cards != null && (IsSameKind(cards) || IsFlush(cards) || IsStraight(cards));
+            // null actor means the player is acting, or the actor will be the acting monster
+            return actor == null && cards != null && (IsSameKind(cards) || IsFlush(cards) || IsStraight(cards));
         }
 
         // The same value

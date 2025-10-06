@@ -35,11 +35,11 @@ namespace Melon.Test
 
             Rules.Add(new RBasic());
 
-            UIBattle.Validator = (cards) =>
+            UIBattle.Validator = (battleChar, cards) =>
             {
                 foreach (var rule in Rules)
                 {
-                    if (rule.IsValid(cards))
+                    if (rule.IsValid(battleChar, cards))
                         return true;
                 }
 

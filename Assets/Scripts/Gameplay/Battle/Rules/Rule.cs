@@ -14,7 +14,7 @@ namespace Melon.Gameplay
     {
         public IActionRunner Runner { get; set; }
 
-        public virtual bool IsValid(IEnumerable<Card> cards) => false;
+        public virtual bool IsValid(BattleChar actor, IEnumerable<Card> cards) => false;
 
         public virtual void BeforeAction(BattleAction action, BattleContext context) { }
 

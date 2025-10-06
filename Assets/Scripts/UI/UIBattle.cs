@@ -15,7 +15,7 @@ namespace Melon.UI
         [SerializeField]
         public UICardsInHand UICardsInHand;
 
-        public Func<IEnumerable<Card>, bool> Validator = null;
+        public Func<BattleChar, IEnumerable<Card>, bool> Validator = null;
 
         public UnityEvent OnCardsPlay = null;
 
@@ -33,7 +33,7 @@ namespace Melon.UI
         public void OnCardsSelectedChanged()
         {
             var cards = UICardsInHand.SelectedCards;
-            BtnPlay.interactable = Validator?.Invoke(cards) ?? false;
+            BtnPlay.interactable = Validator?.Invoke(null, cards) ?? false;
         }
 
         public void PlayCards()

@@ -24,7 +24,7 @@ namespace Melon.Gameplay
 
     public interface IActionRunner
     {
-        void Run(BattleAction action, BattleContext context);
+        void Run(BattleAction action);
 
         void RegisterBefore<T>(Action<T> beforeAction) where T : BattleAction;
 

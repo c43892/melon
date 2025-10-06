@@ -90,27 +90,29 @@ namespace Melon.Test
             }
 
             // heros
-            Battle.Ours[0] = new BattleChar() { Char = new Char() { Type = CharType.Warrior }, MaxHp = 10, Hp = 5, HpHealingTop = 7 };
-            Battle.Ours[1] = new BattleChar() { Char = new Char() { Type = CharType.Priest }, MaxHp = 10, Hp = 5, HpHealingTop = 7 };
-            Battle.Ours[2] = new BattleChar() { Char = new Char() { Type = CharType.Mage }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 5 };
-            Battle.Ours[3] = new BattleChar() { Char = new Char() { Type = CharType.Guard }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 10 };
+            Battle.SetChar(true, 0, new BattleChar() { Char = new Char() { Type = CharType.Warrior }, MaxHp = 10, Hp = 5, HpHealingTop = 7 });
+            Battle.SetChar(true, 1, new BattleChar() { Char = new Char() { Type = CharType.Priest }, MaxHp = 10, Hp = 5, HpHealingTop = 7 });
+            Battle.SetChar(true, 2, new BattleChar() { Char = new Char() { Type = CharType.Mage }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 5 });
+            Battle.SetChar(true, 3, new BattleChar() { Char = new Char() { Type = CharType.Guard }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 10 });
 
             // monsters
-            Battle.Theirs[0] = new BattleChar() { Char = new Char() { Type = CharType.SmallSlime }, MaxHp = 10, Hp = 10 };
-            Battle.Theirs[2] = new BattleChar() { Char = new Char() { Type = CharType.BigSlime }, MaxHp = 10, Hp = 10 };
+            Battle.SetChar(false, 0, new BattleMonster() { Char = new Char() { Type = CharType.SmallSlime }, MaxHp = 10, Hp = 10, Attack = 2 });
+            Battle.SetChar(false, 1, new BattleMonster() { Char = new Char() { Type = CharType.BigSlime }, MaxHp = 10, Hp = 10, Attack = 5 });
 
             BattleScene.gameObject.SetActive(true);
             BattleScene.Load(Battle);
 
+            var ours = Battle.GetOurs();
+            var theirs = Battle.GetTheirs();
             TestUIBattle.UIBattle.OnCardsPlay.AddListener(() =>
             {
                 var cards = TestUIBattle.UIBattle.UICardsInHand.SelectedCards;
                 Battle.PlayCards(cards);
 
-                foreach (var btChar in Battle.Ours)
+                foreach (var btChar in ours)
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
 
-                foreach (var btChar in Battle.Theirs)
+                foreach (var btChar in theirs)
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
             });
 
