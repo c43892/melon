@@ -1,8 +1,10 @@
 using Melon.Gameplay;
+using Melon.Scene;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 using static UnityEngine.GraphicsBuffer;
 
 namespace Melon.Effect
@@ -24,9 +26,9 @@ namespace Melon.Effect
     public class EffectManager : MonoBehaviour
     {
         [SerializeField]
-        Transform SceneEffectyRoot;
+        Transform SceneEffectRoot;
 
-        public Func<BattleChar, Transform> GetBattleCharTransform = null;
+        public Func<BattleChar, SBattleChar> GetSBattleChar = null;
 
         public Action<string, Action<Effect>> EffectLoader = null;
 
@@ -45,7 +47,7 @@ namespace Melon.Effect
         {
             var effectNode = new GameObject("Effect");
             var effect = effectNode.AddComponent<EEmpty>();
-            effectNode.transform.SetParent(SceneEffectyRoot, false);
+            effectNode.transform.SetParent(SceneEffectRoot, false);
             effect.transform.SetParent(effectNode.transform, false);
             effect.gameObject.SetActive(true);
             effectsInPlaying.Add(effect);
@@ -69,8 +71,8 @@ namespace Melon.Effect
                         return;
 
                     var effectNode = new GameObject("Effect");
-                    effectNode.transform.SetParent(SceneEffectyRoot, false);
-                    effectNode.transform.position = GetBattleCharTransform(target).position;
+                    effectNode.transform.SetParent(SceneEffectRoot, false);
+                    effectNode.transform.position = GetSBattleChar(target).transform.position;
 
                     effect.transform.SetParent(effectNode.transform, false);
                     effect.gameObject.SetActive(true);
@@ -88,6 +90,26 @@ namespace Melon.Effect
                 });
             }
 
+            void playOwnerActingEfect(BattleChar battleChar)
+            {
+                var sBattleChar = GetSBattleChar(battleChar);
+                var effectNode = new GameObject("Effect");
+                var effect = effectNode.AddComponent<EBattleCharActing>();
+                effect.SBattleChar = sBattleChar;
+                effectNode.transform.SetParent(SceneEffectRoot, false);
+                effect.transform.SetParent(effectNode.transform, false);
+                effect.gameObject.SetActive(true);
+                effectsInPlaying.Add(effect);
+                effect.Play(() =>
+                {
+                    effectNode.transform.SetParent(null);
+                    Destroy(effect);
+                    Destroy(effectNode);
+
+                    WhenEffectEnded(effect);
+                });
+            }
+
             void damageEffect(Damage damage)
             {
                 // Play damage effect
@@ -99,6 +121,9 @@ namespace Melon.Effect
                             effect => (effect as ITextEffect).Text = "-" + damage.FinalDamage[target].ToString());
                     }
                 }
+
+                if (damage.Owner != null)
+                    playOwnerActingEfect(damage.Owner);
             }
 
             void healingEffect(Healing healing)
@@ -106,6 +131,9 @@ namespace Melon.Effect
                 // Play healing effect
                 foreach (var target in healing.Targets)
                     playTargetEffect("Healing", target, effect => (effect as ITextEffect).Text = "+" + healing.Amount.ToString());
+
+                if (healing.Owner != null)
+                    playOwnerActingEfect(healing.Owner);
             }
 
             void blockEffect(Block block)
@@ -113,6 +141,9 @@ namespace Melon.Effect
                 // Play block effect
                 foreach (var target in block.Targets)
                     playTargetEffect("Block", target, effect => (effect as ITextEffect).Text = "+" + block.Amount.ToString());
+
+                if (block.Owner != null)
+                    playOwnerActingEfect(block.Owner);
             }
 
             bt.RegisterOn<Damage>(damageEffect);

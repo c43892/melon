@@ -32,7 +32,7 @@ namespace Melon.Test
                     (effect) => onLoaded?.Invoke(effect == null ? null : Instantiate(effect))));
             };
 
-            EffManager.GetBattleCharTransform = (battleChar) => TestBattleScene.BattleScene.GetSBattleChar(battleChar)?.transform;
+            EffManager.GetSBattleChar = (battleChar) => TestBattleScene.BattleScene.GetSBattleChar(battleChar);
             EffManager.RegisterBattle(battle);
         }
     }

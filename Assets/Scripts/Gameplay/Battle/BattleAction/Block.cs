@@ -17,6 +17,7 @@ namespace Melon.Gameplay
             {
                 if (target == null || target.Hp <= 0)
                     continue;
+
                 target.Block += Amount;
             }
         }

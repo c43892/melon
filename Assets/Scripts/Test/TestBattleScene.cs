@@ -139,6 +139,7 @@ namespace Melon.Test
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
 
                 Battle.PlayerEndTurn();
+                TestBattleEffects.EffManager.AddEmptyEffect();
                 isHerosTurn = false;
                 monsterActingIndex = 0;
             });

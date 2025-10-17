@@ -15,10 +15,10 @@ namespace Melon.Gameplay
             var monsters = context.Battle.GetMonsters();
             var cards = playingCards.Cards;
 
-            var spadeOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Spades);
-            var heartOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Hearts);
-            var clubOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Clubs);
-            var diamondOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Diamonds);
+            var spadeOwner = heros.FirstOrDefault(c => c != null && c.Hp > 0 && c.CardSuite == CardSuit.Spades);
+            var heartOwner = heros.FirstOrDefault(c => c != null && c.Hp > 0 && c.CardSuite == CardSuit.Hearts);
+            var clubOwner = heros.FirstOrDefault(c => c != null && c.Hp > 0 && c.CardSuite == CardSuit.Clubs);
+            var diamondOwner = heros.FirstOrDefault(c => c != null && c.Hp > 0 && c.CardSuite == CardSuit.Diamonds);
 
             foreach (var card in cards)
             {
@@ -28,17 +28,20 @@ namespace Melon.Gameplay
                 {
                     case CardSuit.Spades:
                         var target = monsters.FirstOrDefault(c => c != null && c.Hp > 0);
-                        if (target != null)
+                        if (target != null && spadeOwner != null)
                             Runner.Run(new CardDamage() { Owner = spadeOwner, TargetSelector = new TargetSelectorFirstOpponent(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Hearts:
-                        Runner.Run(new CardHealing() { Owner = heartOwner, TargetSelector = new TargetSelectorAllTeamMates(), Amount = (int)card.Value, Card = card });
+                        if (heartOwner != null)
+                            Runner.Run(new CardHealing() { Owner = heartOwner, TargetSelector = new TargetSelectorAllTeamMates(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Clubs:
-                        Runner.Run(new CardDamage() { Owner = clubOwner, TargetSelector = new TargetSelectorAllOpponents(), Amount = (int)card.Value, Card = card });
+                        if (clubOwner != null)
+                            Runner.Run(new CardDamage() { Owner = clubOwner, TargetSelector = new TargetSelectorAllOpponents(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Diamonds:
-                        Runner.Run(new CardBlock() { Owner = diamondOwner, TargetSelector = new TargetSelectorAllTeamMates(), Amount = (int)card.Value, Card = card });
+                        if (diamondOwner != null)
+                            Runner.Run(new CardBlock() { Owner = diamondOwner, TargetSelector = new TargetSelectorAllTeamMates(), Amount = (int)card.Value, Card = card });
                         break;
                     default:
                         break;

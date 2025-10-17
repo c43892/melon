@@ -8,7 +8,7 @@ namespace Melon.Effect
     public class EAnimation : Effect
     {
         [SerializeField]
-        Animation Animation;
+        public Animation Animation;
 
         bool started = false;
         Action onStoppedCallback = null;
