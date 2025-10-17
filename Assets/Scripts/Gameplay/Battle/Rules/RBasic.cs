@@ -11,9 +11,15 @@ namespace Melon.Gameplay
             if (act is not PlayingCards playingCards)
                 return;
 
-            var ours = context.Battle.GetOurs();
-            var theirs = context.Battle.GetTheirs();
+            var heros = context.Battle.GetHeros();
+            var monsters = context.Battle.GetMonsters();
             var cards = playingCards.Cards;
+
+            var spadeOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Spades);
+            var heartOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Hearts);
+            var clubOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Clubs);
+            var diamondOwner = heros.FirstOrDefault(c => c != null && c.CardSuite == CardSuit.Diamonds);
+
             foreach (var card in cards)
             {
                 Battle bt = context.Battle;
@@ -21,18 +27,18 @@ namespace Melon.Gameplay
                 switch (card.Suit)
                 {
                     case CardSuit.Spades:
-                        var target = theirs.FirstOrDefault(c => c != null && c.Hp > 0);
+                        var target = monsters.FirstOrDefault(c => c != null && c.Hp > 0);
                         if (target != null)
-                            Runner.Run(new Damage() { Targets = new() { target }, Amount = (int)card.Value, Card = card });
+                            Runner.Run(new CardDamage() { Owner = spadeOwner, TargetSelector = new TargetSelectorFirstOpponent(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Hearts:
-                        Runner.Run(new Healing() { Targets = ours.ToList(), Amount = (int)card.Value, Card = card });
+                        Runner.Run(new CardHealing() { Owner = heartOwner, TargetSelector = new TargetSelectorAllTeamMates(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Clubs:
-                        Runner.Run(new Damage() { Targets = theirs.ToList(), Amount = (int)card.Value, Card = card });
+                        Runner.Run(new CardDamage() { Owner = clubOwner, TargetSelector = new TargetSelectorAllOpponents(), Amount = (int)card.Value, Card = card });
                         break;
                     case CardSuit.Diamonds:
-                        Runner.Run(new Block() { Targets = ours.ToList(), Amount = (int)card.Value, Card = card });
+                        Runner.Run(new CardBlock() { Owner = diamondOwner, TargetSelector = new TargetSelectorAllTeamMates(), Amount = (int)card.Value, Card = card });
                         break;
                     default:
                         break;

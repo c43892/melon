@@ -5,31 +5,26 @@ using UnityEngine;
 namespace Melon.Effect
 {
 
-    public class EAnimation : Effect
+    public class EEmpty : Effect
     {
-        [SerializeField]
-        Animation Animation;
-
-        bool started = false;
+        bool started = true;
         Action onStoppedCallback = null;
 
         public override void Play(Action onStopped)
         {
             started = true;
             onStoppedCallback = onStopped;
-            Animation.Play();
         }
 
         public override void Stop()
         {
-            Animation.Stop();
             started = false;
             onStoppedCallback?.Invoke();
         }
 
         void Update()
         {
-            if (!Animation.isPlaying && started)
+            if (started)
             {
                 started = false;
                 onStoppedCallback?.Invoke();

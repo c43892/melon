@@ -7,13 +7,11 @@ using System.Threading.Tasks;
 
 namespace Melon.Gameplay
 {
-    public class Damage : BattleAction, ITargets, IAmount, ICardAction
+    public class Damage : BattleTargetAction, IAmount
     {
-        public Card Card { get; set; } = null;
-
-        public List<BattleChar> Targets { get; set; } = null;
-
         public Fixed64 Amount { get; set; }
+
+        public readonly Dictionary<BattleChar, Fixed64> FinalDamage = new();
 
         public override void Apply()
         {
@@ -27,12 +25,15 @@ namespace Melon.Gameplay
                 if (target.Block < 0)
                     target.Block = 0;
 
+                FinalDamage[target] = 0;
                 if (finalDamage > 0)
                 {
                     target.HpHealingTop = target.Hp; // take damage will reduce the healing top
                     target.Hp -= finalDamage;
                     if (target.Hp < 0)
                         target.Hp = 0;
+
+                    FinalDamage[target] = finalDamage;
                 }
             }
         }

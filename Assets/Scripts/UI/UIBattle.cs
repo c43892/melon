@@ -10,7 +10,7 @@ namespace Melon.UI
     public class UIBattle : MonoBehaviour
     {
         [SerializeField]
-        Button BtnPlay;
+        public Button BtnPlay;
 
         [SerializeField]
         public UICardsInHand UICardsInHand;

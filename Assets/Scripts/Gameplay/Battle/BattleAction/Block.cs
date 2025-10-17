@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace Melon.Gameplay
 {
-    public class Block : BattleAction, ITargets, IAmount, ICardAction
+    public class Block : BattleTargetAction, IAmount
     {
-        public Card Card { get; set; } = null;
-
-        public List<BattleChar> Targets { get; set; } = null;
-
         public Fixed64 Amount { get; set; }
 
         public override void Apply()

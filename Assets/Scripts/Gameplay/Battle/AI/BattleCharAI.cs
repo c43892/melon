@@ -9,7 +9,7 @@ namespace Melon.Gameplay
 {
     public interface IBattleCharAI 
     {
-        BattleChar Owner { get; }
+        BattleChar Owner { get; set; }
 
         bool Active { get; }
 

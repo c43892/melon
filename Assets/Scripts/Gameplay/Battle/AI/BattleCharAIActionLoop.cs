@@ -11,7 +11,16 @@ namespace Melon.Gameplay
 {
     public class BattleCharAIActionLoop : IBattleCharAI
     {
-        public BattleChar Owner { get; private set; }
+        public BattleChar Owner
+        {
+           get => owner;
+           set
+           {
+                owner = value;
+                foreach(var action in Actions)
+                    action.Owner = value;
+            }
+        } BattleChar owner = null;
 
         public bool Active { get => Owner.Hp > 0; }
 
@@ -19,18 +28,13 @@ namespace Melon.Gameplay
 
         int currentActionIndex = 0;
 
-        public BattleCharAIActionLoop(BattleChar owner)
-        {
-            Owner = owner;
-        }
-
         public void Init()
         {
+            currentActionIndex = 0;
         }
 
         public void Act()
         {
-            currentActionIndex = 0;
             var aciontsCount = Actions.Count;
 
             if (!Active || aciontsCount == 0)

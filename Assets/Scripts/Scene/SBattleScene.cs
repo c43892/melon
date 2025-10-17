@@ -24,7 +24,7 @@ namespace Melon.Scene
 
         public void Load(Battle battle)
         {
-            var ours = battle.GetOurs();
+            var ours = battle.GetHeros();
             for (int i = 0; i < ours.Length; i++)
             {
                 var btChar = ours[i];
@@ -42,7 +42,7 @@ namespace Melon.Scene
                 BattleCharMap[btChar] = battleChar;
             }
 
-            var theirs = battle.GetTheirs();
+            var theirs = battle.GetMonsters();
             for (int i = 0; i < theirs.Length; i++)
             {
                 var btChar = theirs[i];

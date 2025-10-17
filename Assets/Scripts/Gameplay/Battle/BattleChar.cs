@@ -15,5 +15,9 @@ namespace Melon.Gameplay
         public Fixed64 HpHealingTop { get; set; } = 0;
 
         public Fixed64 Block { get; set; } = 0;
+
+        public BattleChar[] GetTeamMates() => this is BattleHero ? Battle.GetHeros() : Battle.GetMonsters();
+
+        public BattleChar[] GetOpponents() => this is BattleHero ? Battle.GetMonsters() : Battle.GetHeros();
     }
 }

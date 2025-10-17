@@ -1,4 +1,5 @@
 ﻿using Framework;
+using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,8 @@ using System.Threading.Tasks;
 
 namespace Melon.Gameplay
 {
-    public class Healing : BattleAction, ITargets, IAmount, ICardAction
+    public class Healing : BattleTargetAction, IAmount
     {
-        public Card Card { get; set; } = null;
-
-        public List<BattleChar> Targets { get; set; } = null;
-
         public Fixed64 Amount { get; set; }
 
         public override void Apply()

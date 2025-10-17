@@ -8,40 +8,34 @@ namespace Melon.Gameplay
 {
     public class Battle : IActionRunner
     {
-        BattleChar[] Ours { get; } = new BattleChar[4];
+        BattleHero[] Heros { get; } = new BattleHero[4];
 
-        BattleChar[] Theirs { get; } = new BattleChar[4];
+        BattleMonster[] Monsters { get; } = new BattleMonster[4];
 
         public List<Rule> Rules { get; private set; } = new();
 
-        BattleContext context = null;
+        readonly BattleContext context = null;
 
         public Battle()
         {
             context = new BattleContext() { Battle = this };
         }
 
-        public void SetChar(bool isOur, int index, BattleChar battleChar)
+        public void SetHero(int index, BattleHero battleChar)
         {
-            if (isOur)
-                Ours[index] = battleChar;
-            else
-                Theirs[index] = battleChar as BattleMonster;
-
+            Heros[index] = battleChar;
             battleChar.Battle = this;
         }
 
-        public BattleChar GetChar(bool isOur, int index)
+        public void SetMonster(int index, BattleMonster battleChar)
         {
-            if (isOur)
-                return Ours[index];
-            else
-                return Theirs[index];
+            Monsters[index] = battleChar;
+            battleChar.Battle = this;
         }
 
-        public BattleChar[] GetOurs() => Ours;
+        public BattleHero[] GetHeros() => Heros;
 
-        public BattleChar[] GetTheirs() => Theirs;
+        public BattleMonster[] GetMonsters() => Monsters;
 
         public void PlayCards(IEnumerable<Card> cards)
         {
@@ -51,20 +45,23 @@ namespace Melon.Gameplay
         public void PlayerEndTurn()
         {
             Run(new PlayerEndTurn());
-
-            // enmeies' turn
-            foreach (var enemy in Theirs)
-            {
-                var ai = (enemy as IBattleCharWithAI)?.AI;
-                if (ai == null || !ai.Active)
-                    continue;
-
-                ai.Act();
-            }
-
-            Run(new EnemyEndTurn());
         }
 
+        public bool MonsterAct(int i)
+        {
+            var enemy = Monsters[i];
+            var ai = (enemy as IBattleCharWithAI)?.AI;
+            if (ai == null || !ai.Active)
+                return false;
+
+            ai.Act();
+            return true;
+        }
+        
+        public void MonsterEndTurn()
+        {
+            Run(new EnemyEndTurn());
+        }
         public void AddRule(Rule rule)
         {
             rule.Runner = this;
@@ -118,6 +115,7 @@ namespace Melon.Gameplay
             foreach (var rule in Rules)
                 rule.BeforeAction(action, context);
 
+            action.Prepare();
             action.Apply();
             if (onActions.ContainsKey(type))
                 foreach (var on in onActions[type])
@@ -130,6 +128,5 @@ namespace Melon.Gameplay
                 foreach (var after in afterActions[type])
                     after(action);
         }
-
     }
 }

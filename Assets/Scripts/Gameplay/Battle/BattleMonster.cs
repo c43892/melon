@@ -6,7 +6,15 @@ namespace Melon.Gameplay
     {
         public Fixed64 Attack;
 
-        public IBattleCharAI AI { get; private set; } = null;
+        public IBattleCharAI AI
+        {
+            get => ai;
+            set
+            {
+                ai = value;
+                ai.Owner = this;
+            }
+        } IBattleCharAI ai = null;
 
         public override Battle Battle
         {

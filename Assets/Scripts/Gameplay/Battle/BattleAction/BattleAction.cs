@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Melon.Gameplay
 {
@@ -14,6 +15,8 @@ namespace Melon.Gameplay
 
     public interface ITargets
     {
+        ITargetSelector TargetSelector { get; }
+
         List<BattleChar> Targets { get; }
     }
 
@@ -35,9 +38,36 @@ namespace Melon.Gameplay
 
     public class BattleAction
     {
+        public BattleChar Owner { get; set; }
+
+        public virtual void Prepare() { }
+
         public virtual void Apply()
         {
             // do nothing
+        }
+    }
+
+    public class BattleTargetAction : BattleAction, ITargets
+    {
+        public ITargetSelector TargetSelector { get; set; } = null;
+
+        public List<BattleChar> Targets { get; } = new();
+
+        public override void Prepare()
+        {
+            SelectTargets();
+        }
+
+        public void SelectTargets()
+        {
+            if (TargetSelector == null)
+                return;
+
+            var teamMates = Owner.GetTeamMates();
+            var opponents = Owner.GetOpponents();
+            Targets.Clear();
+            Targets.AddRange(TargetSelector.GetTargets(Owner, teamMates, opponents));
         }
     }
 }

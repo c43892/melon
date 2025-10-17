@@ -1,3 +1,4 @@
+using Melon.Effect;
 using Melon.Gameplay;
 using Melon.Scene;
 using Melon.UI;
@@ -12,6 +13,9 @@ namespace Melon.Test
     {
         [SerializeField]
         TestUIBattle TestUIBattle;
+
+        [SerializeField]
+        TestBattleEffects TestBattleEffects;
 
         [SerializeField]
         UIEquipsInBattle UIEquipsInBattle;
@@ -90,31 +94,77 @@ namespace Melon.Test
             }
 
             // heros
-            Battle.SetChar(true, 0, new BattleChar() { Char = new Char() { Type = CharType.Warrior }, MaxHp = 10, Hp = 5, HpHealingTop = 7 });
-            Battle.SetChar(true, 1, new BattleChar() { Char = new Char() { Type = CharType.Priest }, MaxHp = 10, Hp = 5, HpHealingTop = 7 });
-            Battle.SetChar(true, 2, new BattleChar() { Char = new Char() { Type = CharType.Mage }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 5 });
-            Battle.SetChar(true, 3, new BattleChar() { Char = new Char() { Type = CharType.Guard }, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 10 });
+            Battle.SetHero(0, new BattleHero() { Char = new Char() { Type = CharType.Warrior }, CardSuite = CardSuit.Spades, MaxHp = 10, Hp = 5, HpHealingTop = 7 });
+            Battle.SetHero(1, new BattleHero() { Char = new Char() { Type = CharType.Priest }, CardSuite = CardSuit.Hearts, MaxHp = 10, Hp = 5, HpHealingTop = 7 });
+            Battle.SetHero(2, new BattleHero() { Char = new Char() { Type = CharType.Mage }, CardSuite = CardSuit.Clubs, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 5 });
+            Battle.SetHero(3, new BattleHero() { Char = new Char() { Type = CharType.Guard }, CardSuite = CardSuit.Diamonds, MaxHp = 10, Hp = 5, HpHealingTop = 7, Block = 10 });
 
             // monsters
-            Battle.SetChar(false, 0, new BattleMonster() { Char = new Char() { Type = CharType.SmallSlime }, MaxHp = 10, Hp = 10, Attack = 2 });
-            Battle.SetChar(false, 1, new BattleMonster() { Char = new Char() { Type = CharType.BigSlime }, MaxHp = 10, Hp = 10, Attack = 5 });
+
+            var smallSlime = new BattleMonster() { Char = new Char() { Type = CharType.SmallSlime }, MaxHp = 10, Hp = 10, Attack = 2 };
+            var ai4SmallSlime = new BattleCharAIActionLoop();
+            ai4SmallSlime.Actions.Add(new Damage() { Amount = 2, TargetSelector = new TargetSelectorFirstOpponent() });
+            smallSlime.AI = ai4SmallSlime;
+            Battle.SetMonster(0, smallSlime);
+            ai4SmallSlime.Init();
+
+            var bigSlime = new BattleMonster() { Char = new Char() { Type = CharType.BigSlime }, MaxHp = 10, Hp = 10, Attack = 5 };            
+            var ai4BigSlime = new BattleCharAIActionLoop();
+            ai4BigSlime.Actions.Add(new Damage() { Amount = 3, TargetSelector = new TargetSelectorAllOpponents() });
+            ai4BigSlime.Actions.Add(new Block() { Amount = 10, TargetSelector = new TargetSelectorOwner() });
+            bigSlime.AI = ai4BigSlime;
+            Battle.SetMonster(1, bigSlime);
+            ai4BigSlime.Init();
 
             BattleScene.gameObject.SetActive(true);
             BattleScene.Load(Battle);
 
-            var ours = Battle.GetOurs();
-            var theirs = Battle.GetTheirs();
+            var isHerosTurn = false;
+
+            var heros = Battle.GetHeros();
+            var monsters = Battle.GetMonsters();
+            isHerosTurn = true;
+            var monsterActingIndex = 0;
             TestUIBattle.UIBattle.OnCardsPlay.AddListener(() =>
             {
+                TestUIBattle.UIBattle.BtnPlay.gameObject.SetActive(false);
+
                 var cards = TestUIBattle.UIBattle.UICardsInHand.SelectedCards;
                 Battle.PlayCards(cards);
 
-                foreach (var btChar in ours)
+                foreach (var btChar in heros)
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
 
-                foreach (var btChar in theirs)
+                foreach (var btChar in monsters)
                     BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
+
+                Battle.PlayerEndTurn();
+                isHerosTurn = false;
+                monsterActingIndex = 0;
             });
+
+            TestBattleEffects.EffManager.OnAllEffectsEnded += () =>
+            {
+                if (!isHerosTurn)
+                {
+                    if (monsterActingIndex < monsters.Count())
+                    {
+                        if (!Battle.MonsterAct(monsterActingIndex++))
+                            TestBattleEffects.EffManager.AddEmptyEffect();
+                    }
+                    else
+                    {
+                        TestUIBattle.UIBattle.BtnPlay.gameObject.SetActive(true);
+                        isHerosTurn = true;
+                    }
+                }
+
+                foreach (var btChar in heros)
+                    BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
+
+                foreach (var btChar in monsters)
+                    BattleScene.GetSBattleChar(btChar)?.RefreshAttrs();
+            };
 
             TestUIBattle.RefreshCardsInHand();
         }

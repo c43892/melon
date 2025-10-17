@@ -18,9 +18,7 @@ namespace Melon.Test
         TestBattleScene TestBattleScene;
 
         [SerializeField]
-        EffectManager EffManager;
-
-
+        public EffectManager EffManager;
 
         private void Start()
         {
